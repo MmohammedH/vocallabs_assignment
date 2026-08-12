@@ -66,8 +66,17 @@ If you don't want to grab a Groq key, `llm_call` steps will fail with a clear `G
 - **Frontend**: deployed to Vercel, pointed at the Cloud project's Auth/GraphQL URLs via the same three `NEXT_PUBLIC_NHOST_*` env vars as `web/.env.example`.
 
 Live URLs:
-- Hosted app: _TODO — fill in after deploy_
+- Hosted app: **https://web-pearl-ten-22.vercel.app**
+- nhost Cloud project: `rbjdbrkxebgtgftiznht` (region `ap-south-1`) — auto-deploys on every push to `main` (migrations, metadata, and Functions all apply automatically)
 - GitHub repo: https://github.com/MmohammedH/vocallabs_assignment
+
+To seed the Final Task demo scenario against the **cloud** backend (rather than local), grab the project's admin secret from the nhost dashboard (Settings → Environment Variables → reveal `NHOST_ADMIN_SECRET`) and:
+```bash
+HASURA_ADMIN_SECRET=<revealed value> \
+AUTH_URL=https://rbjdbrkxebgtgftiznht.auth.ap-south-1.nhost.run/v1 \
+GRAPHQL_URL=https://rbjdbrkxebgtgftiznht.graphql.ap-south-1.nhost.run/v1 \
+  node scripts/seed.mjs
+```
 
 ## A note on scope
 
