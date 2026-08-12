@@ -1,0 +1,14 @@
+.nhost
+.secrets
+
+node_modules/
+.env
+.env.*
+!.env.example
+.next/
+dist/
+build/
+*.log
+.DS_Store
+.vercel/
+.git-credentials
