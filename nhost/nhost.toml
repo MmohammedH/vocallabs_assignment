@@ -48,8 +48,8 @@ disableAutoSignup = false
 
 [auth.user]
 [auth.user.roles]
-default = 'user'
-allowed = ['user', 'me']
+default = 'viewer'
+allowed = ['viewer', 'editor', 'owner']
 
 [auth.user.locale]
 default = 'en'
@@ -84,7 +84,7 @@ enabled = false
 
 [auth.method.emailPassword]
 hibpEnabled = false
-emailVerificationRequired = true
+emailVerificationRequired = false
 passwordMinLength = 9
 
 [auth.method.smsPasswordless]
