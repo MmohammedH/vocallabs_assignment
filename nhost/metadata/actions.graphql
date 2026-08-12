@@ -6,6 +6,7 @@ type Mutation {
 
 type Mutation {
   saveWorkflow(
+    org_id: uuid!
     workflow_id: uuid
     name: String!
     description: String

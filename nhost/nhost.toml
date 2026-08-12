@@ -1,4 +1,7 @@
 [global]
+[[global.environment]]
+name = 'GROQ_API_KEY'
+value = '{{ secrets.GROQ_API_KEY }}'
 
 [hasura]
 version = 'v2.48.10-ce'
