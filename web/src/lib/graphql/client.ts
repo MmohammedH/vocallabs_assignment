@@ -9,6 +9,20 @@ const WS_URL = process.env.NEXT_PUBLIC_NHOST_GRAPHQL_WS_URL as string;
 
 let client: Client | null = null;
 
+// The real role for the org currently in view — set by OrgProvider once it
+// resolves the caller's own org_members row for that org (see
+// context/OrgContext.tsx). Without this, every request would silently run
+// under the JWT's default role (viewer), since Hasura only uses a non-
+// default role when the client explicitly asks for one via this header —
+// asking for a role the caller doesn't actually hold is harmless (Layer 1's
+// literal-role-in-permission-filter re-verifies against org_members), but
+// never asking for the real one means an owner would only ever get
+// viewer-level access.
+let activeRole: string | null = null;
+export function setActiveRole(role: string | null) {
+  activeRole = role;
+}
+
 // Public role calls (e.g. none from this frontend today, but kept available)
 // send no Authorization header at all; Hasura falls back to its configured
 // unauthorized role. Authenticated calls attach the current access token —
@@ -16,7 +30,11 @@ let client: Client | null = null;
 // always picked up without needing to recreate the client.
 function authHeaders(): Record<string, string> {
   const token = nhostAuth.getAccessToken();
-  return token ? { authorization: `Bearer ${token}` } : {};
+  if (!token) return {};
+  return {
+    authorization: `Bearer ${token}`,
+    ...(activeRole ? { "x-hasura-role": activeRole } : {}),
+  };
 }
 
 export function getGqlClient(): Client {
@@ -26,12 +44,16 @@ export function getGqlClient(): Client {
     url: WS_URL,
     connectionParams: () => {
       const token = nhostAuth.getAccessToken();
-      return token ? { headers: { authorization: `Bearer ${token}` } } : {};
+      return token ? { headers: authHeaders() } : {};
     },
   });
 
   client = createClient({
     url: HTTP_URL,
+    // urql defaults to GET for cacheable queries (CDN-friendly), but Hasura's
+    // GET handling expects Apollo-style persisted-query extensions we don't
+    // send, and returns a confusing "PersistedQueryNotSupported" otherwise.
+    preferGetMethod: false,
     exchanges: [
       cacheExchange,
       fetchExchange,

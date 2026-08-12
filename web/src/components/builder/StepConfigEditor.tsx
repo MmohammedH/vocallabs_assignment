@@ -57,7 +57,12 @@ export function StepConfigEditor({ step, onChange, priorStepLabels }: Props) {
       return (
         <div className="space-y-3">
           <Field label="URL" hint={interpolationHint}>
-            <input className={inputCls} value={step.config.url ?? ""} onChange={(e) => set({ url: e.target.value })} />
+            <input
+              data-testid="step-url-input"
+              className={inputCls}
+              value={step.config.url ?? ""}
+              onChange={(e) => set({ url: e.target.value })}
+            />
           </Field>
           <Field label="Method">
             <select

@@ -94,7 +94,12 @@ export function StepList({
       })}
 
       <div className="flex items-center gap-2 pt-2">
-        <select value={addingType} onChange={(e) => setAddingType(e.target.value)} className="rounded-md border border-slate-300 px-2 py-1.5 text-sm">
+        <select
+          data-testid="add-step-select"
+          value={addingType}
+          onChange={(e) => setAddingType(e.target.value)}
+          className="rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+        >
           <option value="">Add a step…</option>
           {availableTypes.map((t) => (
             <option key={t.value} value={t.value}>
@@ -103,7 +108,12 @@ export function StepList({
             </option>
           ))}
         </select>
-        <button onClick={addStep} disabled={!addingType} className="rounded-md bg-slate-900 text-white text-sm px-3 py-1.5 disabled:opacity-40">
+        <button
+          data-testid="add-step-button"
+          onClick={addStep}
+          disabled={!addingType}
+          className="rounded-md bg-slate-900 text-white text-sm px-3 py-1.5 disabled:opacity-40"
+        >
           Add
         </button>
       </div>

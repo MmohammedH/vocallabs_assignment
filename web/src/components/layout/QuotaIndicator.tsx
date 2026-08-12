@@ -1,14 +1,24 @@
 "use client";
 
+import { useEffect } from "react";
 import { useQuery } from "urql";
 import { ORG_USAGE } from "@/lib/graphql/operations";
 
 export function QuotaIndicator({ orgId }: { orgId: string }) {
-  const [{ data, fetching }] = useQuery({
+  const [{ data, fetching }, reexecute] = useQuery({
     query: ORG_USAGE,
     variables: { orgId },
     requestPolicy: "cache-and-network",
   });
+
+  // No subscription on the aggregate view (only step_runs is required to be
+  // live) — a light poll is a cheap way to keep this reasonably fresh
+  // without one, including for usage consumed by scheduled/webhook-
+  // triggered runs happening with nobody watching the Run button.
+  useEffect(() => {
+    const id = setInterval(() => reexecute({ requestPolicy: "network-only" }), 10_000);
+    return () => clearInterval(id);
+  }, [reexecute]);
 
   const org = data?.organizations?.[0];
   if (fetching && !org) return <div className="text-xs text-slate-400">usage…</div>;
