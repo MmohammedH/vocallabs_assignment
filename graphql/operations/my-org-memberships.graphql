@@ -1,0 +1,13 @@
+# Discover which orgs the caller belongs to and their role in each — powers
+# the org switcher. No variables needed: org_members' select permission has
+# a self-row OR-clause specifically so this resolves regardless of which
+# Hasura role (owner/editor/viewer) happens to be active on the request.
+query MyOrgMemberships {
+  org_members {
+    role
+    organization {
+      id
+      name
+    }
+  }
+}

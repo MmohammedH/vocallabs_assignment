@@ -1,0 +1,10 @@
+# Approve a paused approval_gate step and resume the run. The approver's
+# role is re-checked inside the handler against real org_members data — this
+# is the "mid-execution decision" the assignment calls out as impossible to
+# express as a static DB permission (see functions/approve-step.ts).
+mutation ApproveStep($stepRunId: uuid!) {
+  approveStep(step_run_id: $stepRunId) {
+    workflow_run_id
+    status
+  }
+}

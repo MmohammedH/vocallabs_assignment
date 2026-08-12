@@ -1,0 +1,13 @@
+# Quota indicator: org-level usage this month (Postgres view org_usage_this_month,
+# exposed as the organizations.usageThisMonth object relationship).
+query OrgUsage($orgId: uuid!) {
+  organizations(where: { id: { _eq: $orgId } }) {
+    id
+    name
+    quota_calls_allowed
+    usageThisMonth {
+      calls_used
+      calls_remaining
+    }
+  }
+}

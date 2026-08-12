@@ -1,0 +1,34 @@
+# An org's workflows with their steps, triggers, and most recent run status.
+# Row-level security (Layer 1) already scopes this to the caller's own org —
+# the org_id filter below is a normal UX filter, not the security boundary;
+# an org_id belonging to another org simply returns zero rows.
+query GetOrgWorkflows($orgId: uuid!) {
+  workflows(where: { org_id: { _eq: $orgId } }, order_by: { created_at: desc }) {
+    id
+    name
+    description
+    is_active
+    created_at
+    updated_at
+    steps(order_by: { step_order: asc }) {
+      id
+      step_order
+      name
+      type
+      config
+    }
+    triggers {
+      id
+      type
+      config
+      is_enabled
+    }
+    latestRun: runs(order_by: { created_at: desc }, limit: 1) {
+      id
+      status
+      trigger_type
+      started_at
+      completed_at
+    }
+  }
+}

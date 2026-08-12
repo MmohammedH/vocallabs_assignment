@@ -1,0 +1,26 @@
+# Create or edit a workflow, its steps, and its triggers — the ONLY way to
+# write workflow_steps/workflow_triggers (both tables have no insert/update/
+# delete permission for any Hasura role). Layer 2 gating (owner-only
+# db_write/notify steps or a webhook trigger) is enforced inside the
+# saveWorkflow Action handler, not expressible as a declarative permission.
+mutation SaveWorkflow(
+  $orgId: uuid!
+  $workflowId: uuid
+  $name: String!
+  $description: String
+  $isActive: Boolean
+  $steps: [WorkflowStepInput!]!
+  $triggers: [WorkflowTriggerInput!]!
+) {
+  saveWorkflow(
+    org_id: $orgId
+    workflow_id: $workflowId
+    name: $name
+    description: $description
+    is_active: $isActive
+    steps: $steps
+    triggers: $triggers
+  ) {
+    workflow_id
+  }
+}

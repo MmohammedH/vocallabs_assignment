@@ -1,0 +1,27 @@
+# Single workflow by id, org-scoped. Used by the workflow builder in edit
+# mode and by the run viewer's initial "does this workflow_run's parent
+# workflow actually belong to my org" check. An id from a foreign org
+# returns an empty array (not an error) — the frontend must treat that as
+# "not found or forbidden", never assume the id is always resolvable.
+query GetWorkflow($id: uuid!) {
+  workflows(where: { id: { _eq: $id } }) {
+    id
+    org_id
+    name
+    description
+    is_active
+    steps(order_by: { step_order: asc }) {
+      id
+      step_order
+      name
+      type
+      config
+    }
+    triggers {
+      id
+      type
+      config
+      is_enabled
+    }
+  }
+}

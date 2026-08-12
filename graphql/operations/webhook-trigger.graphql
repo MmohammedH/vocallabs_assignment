@@ -1,0 +1,12 @@
+# Inbound endpoint for external systems (the Webhook trigger type). Not
+# called by the frontend — documented here because it's a real GraphQL
+# operation external callers use directly, over plain HTTP POST to the
+# GraphQL endpoint with this mutation and no user JWT (public role).
+# The per-trigger `secret` is set when the webhook trigger is created via
+# saveWorkflow and shown once in the builder UI.
+mutation WebhookTrigger($workflowId: uuid!, $secret: String!, $payload: json) {
+  webhookTrigger(workflow_id: $workflowId, secret: $secret, payload: $payload) {
+    workflow_run_id
+    status
+  }
+}

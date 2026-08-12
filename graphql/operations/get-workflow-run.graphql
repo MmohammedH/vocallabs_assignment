@@ -1,0 +1,18 @@
+# One-shot check before opening the step_runs subscription: distinguishes
+# "run just started, no step_runs written yet" (row exists, subscribe and
+# show a starting skeleton) from "forbidden/nonexistent" (row absent —
+# render ForbiddenState immediately rather than waiting on an empty
+# subscription that will never resolve).
+query GetWorkflowRun($id: uuid!) {
+  workflow_runs(where: { id: { _eq: $id } }) {
+    id
+    workflow_id
+    status
+    trigger_type
+    started_at
+    completed_at
+    workflow {
+      name
+    }
+  }
+}

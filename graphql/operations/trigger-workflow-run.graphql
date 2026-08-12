@@ -1,0 +1,10 @@
+# Manual trigger — the "Run" button. Requires owner/editor (Layer 1 action
+# permission), then the handler independently re-derives the caller's real
+# role from org_members before doing anything (Layer 2), and checks the
+# org's quota before creating the run.
+mutation TriggerWorkflowRun($workflowId: uuid!) {
+  triggerWorkflowRun(workflow_id: $workflowId) {
+    workflow_run_id
+    status
+  }
+}
