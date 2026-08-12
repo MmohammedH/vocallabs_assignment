@@ -1,6 +1,47 @@
-actions: []
+actions:
+  - name: approveStep
+    definition:
+      kind: synchronous
+      handler: '{{NHOST_FUNCTIONS_URL}}/approve-step'
+      forward_client_headers: true
+      timeout: 120
+    permissions:
+      - role: editor
+      - role: owner
+  - name: saveWorkflow
+    definition:
+      kind: synchronous
+      handler: '{{NHOST_FUNCTIONS_URL}}/save-workflow'
+      forward_client_headers: true
+      timeout: 60
+    permissions:
+      - role: editor
+      - role: owner
+  - name: triggerWorkflowRun
+    definition:
+      kind: synchronous
+      handler: '{{NHOST_FUNCTIONS_URL}}/trigger-workflow-run'
+      forward_client_headers: true
+      timeout: 120
+    permissions:
+      - role: editor
+      - role: owner
+  - name: webhookTrigger
+    definition:
+      kind: synchronous
+      handler: '{{NHOST_FUNCTIONS_URL}}/webhook-trigger'
+      forward_client_headers: true
+      timeout: 120
+    permissions:
+      - role: public
 custom_types:
   enums: []
-  input_objects: []
-  objects: []
+  input_objects:
+    - name: WorkflowStepInput
+    - name: WorkflowTriggerInput
+  objects:
+    - name: SaveWorkflowOutput
+    - name: TriggerWorkflowRunOutput
+    - name: ApproveStepOutput
+    - name: WebhookTriggerOutput
   scalars: []
