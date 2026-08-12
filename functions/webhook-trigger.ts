@@ -1,6 +1,5 @@
 import { adminGql } from "./lib/gql";
-import { getUsage } from "./lib/quota";
-import { runSteps } from "./lib/runSteps";
+import { startRun } from "./lib/startRun";
 
 // Hasura Action: webhookTrigger(workflow_id: uuid!, secret: String!, payload: json)
 // Public role — no user JWT required, since external systems call this.
@@ -29,34 +28,11 @@ export default async (req: any, res: any) => {
     }
     const orgId = trigger.workflow.org_id;
 
-    const usage = await getUsage(orgId);
-    if (usage.remaining <= 0) {
+    const result = await startRun({ workflowId: workflow_id, orgId, triggerType: "webhook", input: payload });
+    if (result.quotaExceeded) {
       return res.status(403).json({ message: "organization usage quota exhausted for this period" });
     }
-
-    const runData = await adminGql<{ insert_workflow_runs_one: { id: string } }>(
-      `mutation($object: workflow_runs_insert_input!) {
-         insert_workflow_runs_one(object: $object) { id }
-       }`,
-      {
-        object: {
-          workflow_id,
-          trigger_type: "webhook",
-          status: "running",
-          started_at: new Date().toISOString(),
-          input: payload ?? null,
-        },
-      }
-    );
-    const runId = runData.insert_workflow_runs_one.id;
-
-    await runSteps(runId, 1);
-
-    const final = await adminGql<{ workflow_runs_by_pk: { status: string } }>(
-      `query($id: uuid!) { workflow_runs_by_pk(id: $id) { status } }`,
-      { id: runId }
-    );
-    res.status(200).json({ workflow_run_id: runId, status: final.workflow_runs_by_pk.status });
+    res.status(200).json({ workflow_run_id: result.runId, status: result.status });
   } catch (err: any) {
     res.status(err.statusCode || 500).json({ message: err.message || "internal error" });
   }

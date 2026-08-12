@@ -79,3 +79,14 @@ select_permissions:
             - role:
                 _eq: viewer
       allow_aggregations: true
+event_triggers:
+  - name: on_lead_intake_insert
+    definition:
+      enable_manual: false
+      insert:
+        columns: '*'
+    retry_conf:
+      interval_sec: 10
+      num_retries: 3
+      timeout_sec: 60
+    webhook: '{{NHOST_FUNCTIONS_URL}}/lead-intake-run-starter'

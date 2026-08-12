@@ -1,1 +1,11 @@
-[]
+- name: poll_scheduled_workflow_triggers
+  webhook: '{{NHOST_FUNCTIONS_URL}}/scheduled-trigger-runner'
+  schedule: '* * * * *'
+  include_in_metadata: true
+  payload: {}
+  retry_conf:
+    num_retries: 1
+    retry_interval_seconds: 10
+    timeout_seconds: 60
+    tolerance_seconds: 21600
+  comment: Polls workflow_triggers(type=scheduled) every minute and starts runs whose cron expression matches now.

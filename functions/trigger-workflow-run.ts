@@ -1,7 +1,6 @@
 import { adminGql } from "./lib/gql";
 import { getRealRole, requireRole } from "./lib/role";
-import { getUsage } from "./lib/quota";
-import { runSteps } from "./lib/runSteps";
+import { startRun } from "./lib/startRun";
 
 // Hasura Action: triggerWorkflowRun(workflow_id: uuid!)
 // 1. Verify caller is owner/editor in the workflow's org (real role,
@@ -26,34 +25,11 @@ export default async (req: any, res: any) => {
     const role = await getRealRole(userId, workflow.org_id);
     requireRole(role, ["owner", "editor"]);
 
-    const usage = await getUsage(workflow.org_id);
-    if (usage.remaining <= 0) {
+    const result = await startRun({ workflowId, orgId: workflow.org_id, triggerType: "manual", triggeredBy: userId });
+    if (result.quotaExceeded) {
       return res.status(403).json({ message: "organization usage quota exhausted for this period" });
     }
-
-    const runData = await adminGql<{ insert_workflow_runs_one: { id: string } }>(
-      `mutation($object: workflow_runs_insert_input!) {
-         insert_workflow_runs_one(object: $object) { id }
-       }`,
-      {
-        object: {
-          workflow_id: workflowId,
-          trigger_type: "manual",
-          triggered_by: userId,
-          status: "running",
-          started_at: new Date().toISOString(),
-        },
-      }
-    );
-    const runId = runData.insert_workflow_runs_one.id;
-
-    await runSteps(runId, 1);
-
-    const final = await adminGql<{ workflow_runs_by_pk: { status: string } }>(
-      `query($id: uuid!) { workflow_runs_by_pk(id: $id) { status } }`,
-      { id: runId }
-    );
-    res.status(200).json({ workflow_run_id: runId, status: final.workflow_runs_by_pk.status });
+    res.status(200).json({ workflow_run_id: result.runId, status: result.status });
   } catch (err: any) {
     res.status(err.statusCode || 500).json({ message: err.message || "internal error" });
   }
